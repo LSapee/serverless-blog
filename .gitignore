@@ -13,3 +13,4 @@ jspm_packages
 .nvmrc
 
 .idea
+dynamodb_local_latest.tar.gz
