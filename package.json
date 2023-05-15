@@ -12,12 +12,16 @@
   "dependencies": {
     "@middy/core": "^3.4.0",
     "@middy/http-json-body-parser": "^3.4.0",
+    "@redis/client": "^1.5.7",
+    "better-sqlite3": "^8.3.0",
     "fast-equals": "^5.0.1",
-    "mysql2": "^3.3.1"
+    "mysql2": "^3.3.1",
+    "s3rver": "^3.7.1"
   },
   "devDependencies": {
     "@serverless/typescript": "^3.0.0",
     "@types/aws-lambda": "^8.10.115",
+    "@types/better-sqlite3": "^7.6.4",
     "@types/node": "^14.18.46",
     "esbuild": "^0.14.11",
     "json-schema-to-ts": "^1.5.0",
@@ -25,6 +29,7 @@
     "serverless-dynamodb-local": "^0.2.40",
     "serverless-esbuild": "^1.23.3",
     "serverless-offline": "^12.0.4",
+    "serverless-s3-local": "^0.7.2",
     "serverless-webpack": "^5.11.0",
     "ts-loader": "^9.4.2",
     "ts-node": "^10.4.0",
