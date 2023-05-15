@@ -1,6 +1,8 @@
 
 
 에러 내역
+
+dynamodb 로 배포까지 확인
 ```
 sls dynamodb start
 ```
