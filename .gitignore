@@ -9,8 +9,9 @@ jspm_packages
 .esbuild
 
 .dynamodb
-.env
+.envrc
 .nvmrc
 
 .idea
 dynamodb_local_latest.tar.gz
+.mysql-data
