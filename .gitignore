@@ -16,3 +16,4 @@ jspm_packages
 dynamodb_local_latest.tar.gz
 
 mysql-data
+.webpack
