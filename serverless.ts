@@ -1,48 +1,36 @@
 import type { AWS } from '@serverless/typescript';
+import * as process from "process";
 
-const PostTable = {
-  Type: "AWS::DynamoDB::Table",
-  Properties: {
-    TableName:"post",
-    KeySchema: [{ AttributeName: "title", KeyType: "HASH" }],
-    AttributeDefinitions: [{ AttributeName: "title", AttributeType: "S" }],
-    BillingMode: "PAY_PER_REQUEST",
+const MySQLDBInstance = {
+  Type:"AWS::RDS::DBInstance",
+  Properties:{
+    AllocatedStorage: "5",
+    DBInstanceClass : "db.tc.micro",
+    Engine: "MySQL",
+    DBName: "blog",
+    MasterUserName : process.env.MYSQL_ROOT_USER,
+    MasterUserPassword : process.env.MYSQL_ROOT_PASSWORD,
+    PubliclyAccessible: true,
   },
-};
-
-function getVariableName(expression:{[key:string]:unknown}):string{
-  return Object.keys(expression)[0];
-}
-const PostTableRoleStatement = {
-  Effect: "Allow",
-  Action: [
-    "dynamodb:PutItem",
-    "dynamodb:GetItem",
-    "dynamodb:UpdateItem",
-    "dynamodb:DeleteItem",
-  ],
-  Resource: { "Fn::GetAtt": [getVariableName({ PostTable }), "Arn"] },
-};
-const dynamodbLocal = {
-  stages: ["dev"],
-  start: {
-    host:"127.0.0.1",
-    migrate: true,
-  },
+  DeletionPolicy: "Snapshot",
 };
 
 const config: AWS = {
   service: 'serverless-blog',
   frameworkVersion: '3',
-  plugins: ['serverless-webpack','serverless-dynamodb-local','serverless-offline'],
+  plugins: ['serverless-webpack','serverless-offline'],
   provider: {
     name: 'aws',
     runtime: 'nodejs14.x',
-    region:"ap-northeast-2",
-    iam:{role:{statements:[PostTableRoleStatement]}},
+    region: "ap-northeast-2",
+    environment: {
+      MYSQL_HOST: {"fn::GetAtt": ["MySQLDBInstance", "Endpoint.Address"]},
+      MYSQL_ROOT_USER: process.env.MYSQL_ROOT_USER!,
+      MYSQL_ROOT_PASSWORD: process.env.MYSQL_ROOT_PASSWORD!,
+    },
   },
   resources:{
-    Resources:{PostTable},
+    Resources:{MySQLDBInstance},
   },
   // import the function via paths
   functions: {
@@ -71,9 +59,6 @@ const config: AWS = {
       handler:"handler.listPosts",
       events:[{httpApi:{path:"/api/post",method:"get"}}],
     }
-  },
-  custom: {
-    dynamodb: dynamodbLocal,
   },
 };
 

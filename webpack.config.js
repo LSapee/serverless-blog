@@ -1,5 +1,6 @@
 const path = require("path");
 const slsw = require("serverless-webpack");
+const webpack =require("webpack");
 
 module.exports = {
     mode: slsw.lib.webpack.isLocal ? "development" : "production",
@@ -14,6 +15,7 @@ module.exports = {
         filename: "[name].js",
     },
     target: "node",
+    externals:[/aws-sdk/],
     module: {
         rules: [
             {
@@ -23,5 +25,10 @@ module.exports = {
             },
         ],
     },
-    stats:"normal",
+    plugins:[
+        new webpack.IgnorePlugin({
+            resourceRegExp: /^cardinal$/,
+            contextRegExp: /./,
+        }),
+    ],
 };
