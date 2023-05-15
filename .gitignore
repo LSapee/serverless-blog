@@ -14,4 +14,5 @@ jspm_packages
 
 .idea
 dynamodb_local_latest.tar.gz
-.mysql-data
+
+mysql-data
