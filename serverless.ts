@@ -5,10 +5,10 @@ const MySQLDBInstance = {
   Type:"AWS::RDS::DBInstance",
   Properties:{
     AllocatedStorage: "5",
-    DBInstanceClass : "db.tc.micro",
+    DBInstanceClass : "db.t3.micro",
     Engine: "MySQL",
     DBName: "blog",
-    MasterUserName : process.env.MYSQL_ROOT_USER,
+    MasterUsername : process.env.MYSQL_ROOT_USER,
     MasterUserPassword : process.env.MYSQL_ROOT_PASSWORD,
     PubliclyAccessible: true,
   },
@@ -24,7 +24,7 @@ const config: AWS = {
     runtime: 'nodejs14.x',
     region: "ap-northeast-2",
     environment: {
-      MYSQL_HOST: {"fn::GetAtt": ["MySQLDBInstance", "Endpoint.Address"]},
+      MYSQL_HOST: {"Fn::GetAtt": ["MySQLDBInstance", "Endpoint.Address"]},
       MYSQL_ROOT_USER: process.env.MYSQL_ROOT_USER!,
       MYSQL_ROOT_PASSWORD: process.env.MYSQL_ROOT_PASSWORD!,
     },
