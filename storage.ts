@@ -3,85 +3,113 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 
-import {Post, PostListItem} from "./models";
-import {Database} from "better-sqlite3";
-import {createClient} from "@redis/client";
+import { Post, PostListItem } from "./models";
+import {Database} from 'better-sqlite3';
+import { createClient } from "@redis/client";
+import BetterSqlite3 from 'better-sqlite3';
 
-const BetterSqlite3 = require("better-sqlite3");
 
-type RedisClientType =ReturnType<typeof createClient>;
+type RedisClientType = ReturnType<typeof createClient>;
 
-const s3 = process.env.IS_OFFLINE? new AWS.S3({
-    accessKeyId: "S3RVER",
-    secretAccessKey: "S3RVER",
-    endpoint:"http://localhost:4568",
-    s3ForcePathStyle:true,
-}):new AWS.S3();
-
+const s3 = process.env.IS_OFFLINE
+    ? new AWS.S3({
+        accessKeyId: "S3RVER",
+        secretAccessKey: "S3RVER",
+        endpoint: "http://localhost:4569",
+        s3ForcePathStyle: true,
+    })
+    : new AWS.S3();
 const s3BucketName = process.env.BUCKET_NAME!;
 const dbS3ObjectKey = "simple-blog.db";
-const localDbFile = path.join(os.tmpdir(),dbS3ObjectKey);
+const localDbFile = path.join(os.tmpdir(), dbS3ObjectKey);
 
-//글 등록
-export async function insert(post:Post):Promise<boolean>{
-    try{
-        await doWrite((db)=>
+// 글 작성
+export async function insert(post: Post): Promise<boolean> {
+    try {
+        //글 작성 시도
+        await doWrite((db) =>
             db
                 .prepare(
-                    `INSERT INTO post (title,content, created, modified) VALUES (@title,@content,@created,NULL)`
+                    'INSERT INTO post (title, content, created, modified) VALUES (@title, @content, @created, NULL)'
                 )
                 .run(post)
         );
-    }catch (e:any){
-        if (/UNIQUE constraint failed: post.title/.test(e.message)) return false;
-        throw e;
+    } catch (error: any) {
+        if (/UNIQUE constraint failed: post.title/.test(error.message)) {
+            //에러로 인한 글 작성 실패
+            return false;
+        }
+        throw error;
     }
+    //글 작성 완료
     return true;
 }
-export async function select(title:string):Promise<Post | null>{
+
+export async function select(title: string): Promise<Post | null> {
     const row = await doRead((db) =>
         db.prepare(`SELECT * FROM post WHERE title = @title`).get({ title })
     );
-    return row ? row as Post :null;
+    return row ?? null;
 }
 
-export async function update(oldTitle:string,post: Omit<Post,"created">):Promise<boolean>{
-    const result = await doWrite((db)=>
+export async function update(
+    oldTitle: string,
+    post: Omit<Post, "created">
+): Promise<boolean> {
+    const result = await doWrite((db) =>
         db
-            .prepare(`UPDATE post SET title = @title,content= @content, modified =@modified WHERE title =@oldTitle`).run({...post,oldTitle}));
-    return result.changes ===1;
+            .prepare(
+                `UPDATE post SET title = @title, content = @content, modified = @modified WHERE title = @oldTitle`
+            )
+            .run({ ...post, oldTitle })
+    );
+    return result.changes === 1;
 }
-export async function remove(title:string): Promise<void>{
-    await doWrite((db)=>
-        db.prepare(`DELETE FROM post WHERE title = @title`).run({title}));
+
+export async function remove(title: string): Promise<void> {
+    await doWrite((db) =>
+        db.prepare(`DELETE FROM post WHERE title = @title`).run({ title })
+    );
 }
 
 export async function list(): Promise<PostListItem[]> {
     const rows = await doRead((db) =>
-        db.prepare(`SELECT title, created FROM post ORDER BY created DESC`).all()
-    );
-    return (rows ?? []).map((row) => row as PostListItem);
+        db.prepare(`SELECT title, created FROM post ORDER BY created DESC`).all());
+    return rows ?? [];
 }
-async function s3Exists(bucketName:string, key:string):Promise<boolean>{
-    try{
-        await s3.headObject({Bucket:bucketName,Key:key}).promise();
+
+async function s3Exists(bucketName: string, key: string): Promise<boolean> {
+    try {
+        await s3
+            .headObject({
+                Bucket: bucketName,
+                Key: key,
+            })
+            .promise();
         return true;
-    }catch (e:any){
-        if(e.code ==="Forbidden") return false;
-        throw e;
+    } catch (error: any) {
+        if (error.code === "Forbidden" || error.code === "NotFound") {
+            return false;
+        }
+        throw error;
     }
 }
-async function s3Download(bucketName:string,key:string,localFile:string):Promise<void>{
-    return new Promise<void>((resolve,reject)=>
+
+async function s3Download(
+    bucketName: string,
+    key: string,
+    localFile: string
+): Promise<void> {
+    return new Promise<void>((resolve, reject) =>
         s3
             .getObject({
-                Bucket:bucketName,
-                Key:key,
+                Bucket: bucketName,
+                Key: key,
             })
             .createReadStream()
-            .on("error",reject)
+            .on("error", reject)
             .pipe(
-                fs.createWriteStream(localFile).on('close',resolve).on("error",reject)
+                fs.createWriteStream(localFile).on("close", resolve).on("error", reject)
             )
     );
 }
@@ -99,71 +127,89 @@ async function s3Upload(
         })
         .promise();
 }
-async function doRead<T>(work: (db: Database) => T) :Promise<T | null>{
+
+async function doRead<T>(work: (db: Database) => T): Promise<T | null> {
     if (!(await s3Exists(s3BucketName, dbS3ObjectKey))) {
         return null;
     }
-    await s3Download(s3BucketName,dbS3ObjectKey,localDbFile);
-    try{
+    await s3Download(s3BucketName, dbS3ObjectKey, localDbFile);
+    try {
         const db = new BetterSqlite3(localDbFile);
         return work(db);
-    }finally {
+    } finally {
         fs.unlinkSync(localDbFile);
     }
 }
-const createTableSQL = `CREATE TABLE post(
-    title TEXT NOT NULL,
-    content TEXT NOT NULL,
-    created TEXT NOT NULL,
-    modified TEXT NULL
-                        );`;
-async function doWrite<T>(work:(db:Database)=>T):Promise<T>{
-    return await doInLock(async ()=>{
-        let db:Database;
-        if(!(await s3Exists(s3BucketName,dbS3ObjectKey))){
-            db = new BetterSqlite3(localDbFile);
-            db.exec(createTableSQL);
-        }else{
-            await s3Download(s3BucketName,dbS3ObjectKey,localDbFile);
-            db =new BetterSqlite3(localDbFile);
+
+const createTableSQL = `CREATE TABLE post (
+  title TEXT NOT NULL PRIMARY KEY,
+  content TEXT NOT NULL,
+  created TEXT NOT NULL,
+  modified TEXT NULL
+  );
+`;
+
+async function doWrite<T>(work: (db: Database) => T): Promise<T> {
+    return await doInLock(async () => {
+        let db: Database;
+        try {
+            if (!(await s3Exists(s3BucketName, dbS3ObjectKey))) {
+                db = new BetterSqlite3(localDbFile);
+                db.exec(createTableSQL);
+            } else {
+                await s3Download(s3BucketName, dbS3ObjectKey, localDbFile);
+                db = new BetterSqlite3(localDbFile);
+            }
+            const result = work(db);
+            await s3Upload(s3BucketName, dbS3ObjectKey, localDbFile);
+            return result;
+        } finally {
+            fs.unlinkSync(localDbFile);
         }
-        const result = work(db);
-        await s3Upload(s3BucketName,dbS3ObjectKey,localDbFile);
-        return result;
     });
 }
-const redisUrl = `redis://${process.env.IS_OFFLINE?"127.0.0.1":process.env.REDIS_HOST}:6379`;
+
+const redisUrl = `redis://${
+    process.env.IS_OFFLINE ? "127.0.0.1" : process.env.REDIS_HOST
+}:6379`;
+
 const waitTimeoutMillis = 3000;
-const lockTimeoutMills = 5000;
+const lockTimeoutMillis = 5000;
 const lockRedisKey = "simple-blog-redis-lock";
 
-async function doInLock<T>(work:()=>Promise<T>):Promise<T>{
-    const client = createClient({url:redisUrl});
+async function doInLock<T>(work: () => Promise<T>): Promise<T> {
+    const client = createClient({ url: redisUrl });
     await client.connect();
 
-    if(!(await acquireLock(client,lockRedisKey)))throw new Error("can't acquire lock");
-    try{
+    if (!(await acquireLock(client, lockRedisKey))) {
+        throw new Error("잠금을 획득할 수 없습니다");
+    }
+    try {
         return await work();
-    }finally {
+    } finally {
         await client.del(lockRedisKey);
         await client.quit();
     }
 }
-async function sleep(millis:number):Promise<void>{
-    return new Promise<void>((resolve)=>setTimeout(resolve,millis));
+
+async function sleep(millis: number): Promise<void> {
+    return new Promise<void>((resolve) => setTimeout(resolve, millis));
 }
+
 async function acquireLock(
-    client:RedisClientType,
-    lockRedisKey:string,
-):Promise<boolean>{
+    client: RedisClientType,
+    lockRedisKey: string
+): Promise<boolean> {
     const acquireStart = Date.now();
-    while(Date.now() - acquireStart < waitTimeoutMillis){
-        const ret = await  client.set(lockRedisKey,Date.now().toString(),{
+    while (Date.now() - acquireStart < waitTimeoutMillis) {
+        const ret = await client.set(lockRedisKey, Date.now().toString(), {
             NX: true,
-            PX: lockTimeoutMills,
+            PX: lockTimeoutMillis,
         });
-        if(ret==="OK") return true;
-        await sleep(Math.random() *30);
+        if (ret === "OK") {
+            return true;
+        }
+        await sleep(Math.random() * 30);
     }
     return false;
 }

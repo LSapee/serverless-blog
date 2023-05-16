@@ -1,6 +1,6 @@
 import type { AWS } from '@serverless/typescript';
 const layers=[
-  "arn:aws:lambda:ap-northeast-2:435401313062:layer:better-sqlite3:1"
+  "arn:aws:lambda:ap-northeast-2:435401313062:layer:better-sqlite3:2"
 ];
 const subnetIds=[
     "subnet-0f6ba45ec815e33a1",
@@ -82,8 +82,8 @@ const config: AWS = {
       role:{
         statements:[
           {
-            Action:['s3:PutObject','s3:GetObject'],
-            Effect:"Allow",
+            Action: ["s3:PutObject", "s3:GetObject"],
+            Effect: "Allow",
             Resource: `arn:aws:s3:::${process.env.BUCKET_NAME}/*`,
           }
         ],
