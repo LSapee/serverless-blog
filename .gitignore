@@ -18,6 +18,6 @@ dynamodb_local_latest.tar.gz
 mysql-data
 .webpack
 layer.zip
-sqlite
+sqlfile
 buckets
 nodejs
