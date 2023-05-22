@@ -8,40 +8,36 @@ import {Database} from 'better-sqlite3';
 import { createClient } from "@redis/client";
 import BetterSqlite3 from 'better-sqlite3';
 
-
 type RedisClientType = ReturnType<typeof createClient>;
 
 const s3 = process.env.IS_OFFLINE
     ? new AWS.S3({
+        s3ForcePathStyle: true,
         accessKeyId: "S3RVER",
         secretAccessKey: "S3RVER",
         endpoint: "http://localhost:4569",
-        s3ForcePathStyle: true,
     })
     : new AWS.S3();
 const s3BucketName = process.env.BUCKET_NAME!;
 const dbS3ObjectKey = "simple-blog.db";
 const localDbFile = path.join(os.tmpdir(), dbS3ObjectKey);
 
-// 글 작성
 export async function insert(post: Post): Promise<boolean> {
     try {
-        //글 작성 시도
         await doWrite((db) =>
             db
                 .prepare(
-                    'INSERT INTO post (title, content, created, modified) VALUES (@title, @content, @created, NULL)'
+                    `INSERT INTO post (title, content, created, modified) VALUES (@title, @content, @created, NULL)`
                 )
                 .run(post)
         );
     } catch (error: any) {
         if (/UNIQUE constraint failed: post.title/.test(error.message)) {
-            //에러로 인한 글 작성 실패
+            console.log("insert if");
             return false;
         }
         throw error;
     }
-    //글 작성 완료
     return true;
 }
 
@@ -49,7 +45,7 @@ export async function select(title: string): Promise<Post | null> {
     const row = await doRead((db) =>
         db.prepare(`SELECT * FROM post WHERE title = @title`).get({ title })
     );
-    return row ?? null;
+    return row as Post ?? null;
 }
 
 export async function update(
@@ -74,8 +70,9 @@ export async function remove(title: string): Promise<void> {
 
 export async function list(): Promise<PostListItem[]> {
     const rows = await doRead((db) =>
-        db.prepare(`SELECT title, created FROM post ORDER BY created DESC`).all());
-    return rows ?? [];
+        db.prepare(`SELECT title, created FROM post ORDER BY created DESC`).all()
+    );
+    return rows as PostListItem[]?? [];
 }
 
 async function s3Exists(bucketName: string, key: string): Promise<boolean> {
@@ -88,7 +85,7 @@ async function s3Exists(bucketName: string, key: string): Promise<boolean> {
             .promise();
         return true;
     } catch (error: any) {
-        if (error.code === "Forbidden" || error.code === "NotFound") {
+        if (error.code === "Forbidden" || error.code === "NotFound" || error.code==="MissingRequiredParameter") {
             return false;
         }
         throw error;
@@ -119,6 +116,9 @@ async function s3Upload(
     key: string,
     localFile: string
 ): Promise<void> {
+    // console.log("bucketName",bucketName);
+    // console.log("key",key);
+    // console.log("localFile",localFile);
     await s3
         .putObject({
             Bucket: bucketName,
@@ -132,6 +132,7 @@ async function doRead<T>(work: (db: Database) => T): Promise<T | null> {
     if (!(await s3Exists(s3BucketName, dbS3ObjectKey))) {
         return null;
     }
+
     await s3Download(s3BucketName, dbS3ObjectKey, localDbFile);
     try {
         const db = new BetterSqlite3(localDbFile);
@@ -142,11 +143,11 @@ async function doRead<T>(work: (db: Database) => T): Promise<T | null> {
 }
 
 const createTableSQL = `CREATE TABLE post (
-  title TEXT NOT NULL PRIMARY KEY,
-  content TEXT NOT NULL,
-  created TEXT NOT NULL,
-  modified TEXT NULL
-  );
+                                              title TEXT NOT NULL PRIMARY KEY,
+                                              content TEXT NOT NULL,
+                                              created TEXT NOT NULL,
+                                              modified TEXT NULL
+                        );
 `;
 
 async function doWrite<T>(work: (db: Database) => T): Promise<T> {
@@ -161,6 +162,7 @@ async function doWrite<T>(work: (db: Database) => T): Promise<T> {
                 db = new BetterSqlite3(localDbFile);
             }
             const result = work(db);
+
             await s3Upload(s3BucketName, dbS3ObjectKey, localDbFile);
             return result;
         } finally {
