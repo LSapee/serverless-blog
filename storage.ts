@@ -33,7 +33,6 @@ export async function insert(post: Post): Promise<boolean> {
         );
     } catch (error: any) {
         if (/UNIQUE constraint failed: post.title/.test(error.message)) {
-            console.log("insert if");
             return false;
         }
         throw error;
@@ -72,7 +71,7 @@ export async function list(): Promise<PostListItem[]> {
     const rows = await doRead((db) =>
         db.prepare(`SELECT title, created FROM post ORDER BY created DESC`).all()
     );
-    return rows as PostListItem[]?? [];
+    return rows as PostListItem[] ?? [];
 }
 
 async function s3Exists(bucketName: string, key: string): Promise<boolean> {
@@ -85,7 +84,8 @@ async function s3Exists(bucketName: string, key: string): Promise<boolean> {
             .promise();
         return true;
     } catch (error: any) {
-        if (error.code === "Forbidden" || error.code === "NotFound" || error.code==="MissingRequiredParameter") {
+        console.info("error.code",error.code);
+        if (error.code === "Forbidden"|| error.code==="NotFound" || error.code==="Not Found") {
             return false;
         }
         throw error;
@@ -116,9 +116,6 @@ async function s3Upload(
     key: string,
     localFile: string
 ): Promise<void> {
-    // console.log("bucketName",bucketName);
-    // console.log("key",key);
-    // console.log("localFile",localFile);
     await s3
         .putObject({
             Bucket: bucketName,
@@ -149,6 +146,9 @@ const createTableSQL = `CREATE TABLE post (
                                               modified TEXT NULL
                         );
 `;
+async function makeTmp (){
+    await fs.createWriteStream(os.tmpdir()+"/"+dbS3ObjectKey);
+}
 
 async function doWrite<T>(work: (db: Database) => T): Promise<T> {
     return await doInLock(async () => {
@@ -162,8 +162,8 @@ async function doWrite<T>(work: (db: Database) => T): Promise<T> {
                 db = new BetterSqlite3(localDbFile);
             }
             const result = work(db);
-
             await s3Upload(s3BucketName, dbS3ObjectKey, localDbFile);
+
             return result;
         } finally {
             fs.unlinkSync(localDbFile);

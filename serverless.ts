@@ -1,6 +1,6 @@
 import type { AWS } from '@serverless/typescript';
 const layers=[
-  "arn:aws:lambda:ap-northeast-2:435401313062:layer:better-sqlite3:4"
+  "arn:aws:lambda:ap-northeast-2:435401313062:layer:better-sqlite3:7"
 ];
 const subnetIds=[
   "subnet-0f6ba45ec815e33a1",
@@ -46,7 +46,6 @@ const S3Bucket = {
 const RedisInstance = {
   Type: "AWS::ElastiCache::ReplicationGroup",
   Properties: {
-    // ReplicationGroupId: process.env.REDIS_NAME!,
     ReplicationGroupId: process.env.REDIS_NAME!,
     ReplicationGroupDescription: "Redis instance for simple locking",
     CacheNodeType: "cache.t3.micro",
@@ -89,6 +88,7 @@ const config: AWS = {
     Resources: {
       S3Bucket,
       RedisInstance,
+
     },
   },
 };
