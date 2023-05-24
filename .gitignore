@@ -14,7 +14,7 @@ jspm_packages
 
 .idea
 dynamodb_local_latest.tar.gz
-
+layer.zip
 mysql-data
 .webpack
 sqlfile
