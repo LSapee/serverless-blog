@@ -141,6 +141,16 @@
                   ]
                 }
               }
+            },
+            {
+              "Id": "APIOrigin",
+              "DomainName": "4rnj8e7t63.execute-api.ap-northeast-2.amazonaws.com",
+              "CustomOriginConfig": {
+                "OriginProtocolPolicy": "https-only",
+                "OriginSSLProtocols": [
+                  "TLSv1.2"
+                ]
+              }
             }
           ],
           "DefaultCacheBehavior": {
@@ -149,6 +159,23 @@
             "Compress": true,
             "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6"
           },
+          "CacheBehaviors": [
+            {
+              "TargetOriginId": "APIOrigin",
+              "PathPattern": "/api/*",
+              "ViewerProtocolPolicy": "https-only",
+              "AllowedMethods": [
+                "GET",
+                "HEAD",
+                "OPTIONS",
+                "PUT",
+                "PATCH",
+                "POST",
+                "DELETE"
+              ],
+              "CachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+            }
+          ],
           "Aliases": [
             "blog.studynodejs.com"
           ],

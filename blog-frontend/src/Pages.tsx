@@ -86,6 +86,7 @@ export function PostEditPage() {
 
     // "글 제목"을 주소로부터 가져온다.
     const { title } = useParams<"title">();
+    console.log("postEdit",title);
 
     // "글"을 관리할 React 상태를 선언한다.
     const [post, setPost] = React.useState<Post | null>(null);
