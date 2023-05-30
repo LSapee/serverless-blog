@@ -3,7 +3,7 @@ import { Post, PostListItem } from "./models";
 // 글 목록 조회 API를 요청하는 함수.
 export async function fetchPostListItems(): Promise<PostListItem[]> {
     return (
-        fetch(`http://localhost:3000/api/post`)
+        fetch(`${process.env.REACT_APP_SERVER}/api/post`)
             // 응답 결과를 JSON으로 변환해서 반환한다. any 타입이 반환형에 맞게 인식된다.
             .then((r) => r.json())
     );
@@ -12,7 +12,7 @@ export async function fetchPostListItems(): Promise<PostListItem[]> {
 // 글 조회 API를 요청하는 함수.
 export async function fetchPost(title: string): Promise<Post> {
     // 주소에 들어가는 값은 따로 "encodeURIComponent"를 해주지 않아도 인코딩된다.
-    return fetch(`http://localhost:3000/api/post/${title}`).then((r) =>
+    return fetch(`${process.env.REACT_APP_SERVER}/api/post/${title}`).then((r) =>
         r.json()
     );
 }
@@ -22,7 +22,7 @@ export async function createPost(
     title: string,
     content: string
 ): Promise<{ title: string }> {
-    return fetch(`http://localhost:3000/api/post`, {
+    return fetch(`${process.env.REACT_APP_SERVER}/api/post`, {
         method: "POST",
         // 요청할 때 Content-Type을 명시해야 한다.
         headers: { "Content-Type": "application/json" },
@@ -38,7 +38,7 @@ export async function updatePost(
     content: string
 ): Promise<{ title: string }> {
     // 글 생성 API에 대한 요청과 거의 동일하지만, 주소에 예전 글 제목이 들어간다.
-    return fetch(`http://localhost:3000/api/post/${oldTitle}`, {
+    return fetch(`${process.env.REACT_APP_SERVER}/api/post/${oldTitle}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, content }),
@@ -48,7 +48,7 @@ export async function updatePost(
 // 글 삭제를 요청하는 함수.
 export async function deletePost(title: string): Promise<void> {
     const response = await fetch(
-        `http://localhost:3000/api/post/${title}`,
+        `${process.env.REACT_APP_SERVER}/api/post/${title}`,
         { method: "DELETE" }
     );
     // 글 삭제 API는 응답 본문이 없기 때문에 상태 코드만 확인한다.
