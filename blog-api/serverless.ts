@@ -81,6 +81,14 @@ const config: AWS = {
       },
     },
     layers,
+    httpApi:{
+      cors:{
+        allowedOrigins:[process.env.CORS_ALLOW_ORIGIN!],
+        allowedMethods:["GET","POST","PUT","DELETE"],
+        allowedHeaders:["Content-Type"],
+        allowCredentials:true,
+      }
+    }
   },
   functions,
   plugins: ["serverless-webpack", "serverless-s3-local", "serverless-offline"],
