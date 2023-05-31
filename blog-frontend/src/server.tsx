@@ -11,7 +11,6 @@ export async function fetchPostListItems(): Promise<PostListItem[]> {
 
 // 글 조회 API를 요청하는 함수.
 export async function fetchPost(title: string): Promise<Post> {
-    // 주소에 들어가는 값은 따로 "encodeURIComponent"를 해주지 않아도 인코딩된다.
     return fetch(`${process.env.REACT_APP_SERVER}/api/post/${title}`).then((r) =>
         r.json()
     );

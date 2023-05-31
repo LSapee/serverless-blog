@@ -38,7 +38,7 @@ export const readPost: APIGatewayProxyHandlerV2<Post>=async (event)=>{
     if(!post){
         return {statusCode:404};
     }
-    return {post};
+    return post;
 }
 
 //글 삭제

@@ -43,7 +43,7 @@ export function DateField({ label, date }: { label: string; date?: string }) {
 }
 
 // 글을 보여주기 위한 컴포넌트.
-export function Viewer({ post }: { post: Post }) {
+export function Viewer({post}:{ post: Post }) {
     // "PostList" 컴포넌트와 동일한 순수 함수 컴포넌트로,
     // 전달 받은 값을 렌더링하고 이벤트는 바깥으로 위임한다.
     return (
@@ -57,6 +57,7 @@ export function Viewer({ post }: { post: Post }) {
                     <p>{nl2br(post.content)}</p>
                 </dd>
             </dl>
+
             {/* 버튼으로부터 발생하는 이벤트를 바깥으로 위임한다. */}
             <Link to="/">목록</Link>
             {/* Link 사이에 띄어쓰기를 넣어 약간 떨어지게 만들어준다. */}
