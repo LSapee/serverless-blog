@@ -29,29 +29,17 @@ export function PostListPage() {
 
 // "글"을 보여주기 위한 페이지 컴포넌트.
 export function PostViewPage() {
-    // "글 제목"을 주소로부터 가져온다.
     const { title } = useParams<"title">();
-
-    // "글"을 관리할 React 상태를 선언한다.
     const [post, setPost] = React.useState<Post | null>(null);
-
-    // "title" 변수가 변경될 때 "글"을 조회해 "post" 상태에 넣는다.
     React.useEffect(
         () => {
             fetchPost(title!).then(setPost).catch(alert);
         },
-        // 컴포넌트는 재사용될 수 있다. 이 때 "title" 변수가 바뀐다.
-        // 따라서 "title"이 바뀔 때 "글"을 다시 조회한다.
         [title]
     );
-
-    // 아직 "post"가 없다면 로딩 중이라 알려준다.
-    // 단, 이 예제에서는 예외 처리를 고려하지 않기 때문에 잘못된 주소로 접근할 경우에도 이 화면이 나온다.
     if (!post) {
         return <p>불러오는 중...</p>;
     }
-
-    // "글 보기" 컴포넌트에 렌더링을 위임한다.
     return <Viewer post={post} />;
 }
 
@@ -82,10 +70,12 @@ export function PostNewPage() {
 
 // "글을 수정"하기 위한 페이지 컴포넌트.
 export function PostEditPage() {
-    const navigate = useNavigate();
+
 
     // "글 제목"을 주소로부터 가져온다.
     const { title } = useParams<"title">();
+    console.log("postEdit",title);
+    const navigate = useNavigate();
 
     // "글"을 관리할 React 상태를 선언한다.
     const [post, setPost] = React.useState<Post | null>(null);
