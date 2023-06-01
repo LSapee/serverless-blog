@@ -34,6 +34,14 @@ const functions = {
     handler: "handler.listPosts",
     events: [{ httpApi: { path: "/api/post", method: "get" } }],
   },
+  serveStatic:{
+    handler:"handler.serveStatic",
+    events:[
+      {http:{path:"/",method:"get"}},
+      {http:{path:"/{fileName}",method:"get"}},
+      {http:{path:"/static/{type}/{fileName}",method: "get"}},
+    ]
+  }
 };
 
 const S3Bucket = {
@@ -91,12 +99,35 @@ const config: AWS = {
     }
   },
   functions,
-  plugins: ["serverless-webpack", "serverless-s3-local", "serverless-offline"],
+  custom: {
+    scripts: {
+      hooks: {
+        "webpack:package:packExternalModules":
+            "[ -d .webpack/serveStatic ] && cp -r ../blog-frontend/build .webpack/serveStatic/pages || true",
+      },
+    },
+    customDomain: {
+      apiType: "rest",
+      domainName: `${process.env.SUB_DOMAIN}.${process.env.ROOT_DOMAIN}`,
+      certificateName: process.env.ROOT_DOMAIN!,
+      endpointType: "edge",
+      createRoute53Record: true,
+    },
+  },
+  package: {
+    individually: true,
+  },
+  plugins: [
+    "serverless-webpack",
+    "serverless-s3-local",
+    "serverless-offline",
+    "serverless-plugin-scripts",
+    "serverless-domain-manager",
+  ],
   resources: {
     Resources: {
       S3Bucket,
       RedisInstance,
-
     },
   },
 };
