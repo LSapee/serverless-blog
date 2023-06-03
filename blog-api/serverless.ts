@@ -13,26 +13,26 @@ const vpc = {subnetIds,securityGroupIds};
 const functions = {
   createPost: {
     handler: "handler.createPost",
-    events: [{ httpApi: { path: "/api/post", method: "post" } }],
+    events: [{ http: { path: "/api/post", method: "post" } }],
     vpc,
   },
   readPost: {
     handler: "handler.readPost",
-    events: [{ httpApi: { path: "/api/post/{title}", method: "get" } }],
+    events: [{ http: { path: "/api/post/{title}", method: "get" } }],
   },
   updatePost: {
     handler: "handler.updatePost",
-    events: [{ httpApi: { path: "/api/post/{title}", method: "put" } }],
+    events: [{ http: { path: "/api/post/{title}", method: "put" } }],
     vpc,
   },
   deletePost: {
     handler: "handler.deletePost",
-    events: [{ httpApi: { path: "/api/post/{title}", method: "delete" } }],
+    events: [{ http: { path: "/api/post/{title}", method: "delete" } }],
     vpc,
   },
   listPosts: {
     handler: "handler.listPosts",
-    events: [{ httpApi: { path: "/api/post", method: "get" } }],
+    events: [{ http: { path: "/api/post", method: "get" } }],
   },
   serveStatic:{
     handler:"handler.serveStatic",
@@ -88,15 +88,15 @@ const config: AWS = {
         ],
       },
     },
+    apiGateway:{
+      minimumCompressionSize :1024,
+      binaryMediaTypes : ["image/*"]
+    },
+    tracing:{
+      apiGateway:true,
+      lambda:true,
+    },
     layers,
-    httpApi:{
-      cors:{
-        allowedOrigins:[process.env.CORS_ALLOW_ORIGIN!],
-        allowedMethods:["GET","POST","PUT","DELETE"],
-        allowedHeaders:["Content-Type"],
-        allowCredentials:true,
-      }
-    }
   },
   functions,
   custom: {
