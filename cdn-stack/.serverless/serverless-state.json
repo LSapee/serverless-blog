@@ -125,7 +125,7 @@
             "Type": "AWS::CloudFront::Distribution",
             "Properties": {
               "DistributionConfig": {
-                "Comment": "간단한 블로그 웹 서비스",
+                "Comment": "서버리스 블로그 웹 서비스",
                 "Enabled": true,
                 "DefaultRootObject": "index.html",
                 "CustomErrorResponses": [
@@ -381,7 +381,7 @@
           "Type": "AWS::CloudFront::Distribution",
           "Properties": {
             "DistributionConfig": {
-              "Comment": "간단한 블로그 웹 서비스",
+              "Comment": "서버리스 블로그 웹 서비스",
               "Enabled": true,
               "DefaultRootObject": "index.html",
               "CustomErrorResponses": [
@@ -496,7 +496,7 @@
     "isDashboardMonitoringPreconfigured": false
   },
   "package": {
-    "artifactDirectoryName": "serverless/simple-blog-front/dev/1685545766709-2023-05-31T15:09:26.709Z",
+    "artifactDirectoryName": "serverless/simple-blog-front/dev/1685777328644-2023-06-03T07:28:48.644Z",
     "artifact": ""
   }
 }

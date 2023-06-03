@@ -86,7 +86,7 @@ const BlogStaticFileCdn = {
     Type: "AWS::CloudFront::Distribution",
     Properties: {
         DistributionConfig: {
-            Comment: "간단한 블로그 웹 서비스",
+            Comment: "서버리스 블로그 웹 서비스",
             Enabled: true,
             DefaultRootObject: "index.html",
             CustomErrorResponses: [CustomErrorResponse],

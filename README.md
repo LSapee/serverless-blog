@@ -9,3 +9,7 @@ frontend 폴더에서 npm run build 후
 sls deploy function -f serveStatic
 ```
 
+
+제목으로 특수문자 입력하면 게시글 입력은 되지만 조회가 안되는 문제가 있습니다.
+
+RestAPI 설정시 연동 문제가 있어서 다시 HTTP API로 롤백 예정
