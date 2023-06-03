@@ -155,7 +155,7 @@
                   },
                   {
                     "Id": "APIOrigin",
-                    "DomainName": "fmme5yjp23.execute-api.ap-northeast-2.amazonaws.com",
+                    "DomainName": "ggl6gyygc8.execute-api.ap-northeast-2.amazonaws.com",
                     "CustomOriginConfig": {
                       "OriginProtocolPolicy": "https-only",
                       "OriginSSLProtocols": [
@@ -411,7 +411,7 @@
                 },
                 {
                   "Id": "APIOrigin",
-                  "DomainName": "fmme5yjp23.execute-api.ap-northeast-2.amazonaws.com",
+                  "DomainName": "ggl6gyygc8.execute-api.ap-northeast-2.amazonaws.com",
                   "CustomOriginConfig": {
                     "OriginProtocolPolicy": "https-only",
                     "OriginSSLProtocols": [
@@ -496,7 +496,7 @@
     "isDashboardMonitoringPreconfigured": false
   },
   "package": {
-    "artifactDirectoryName": "serverless/simple-blog-front/dev/1685777328644-2023-06-03T07:28:48.644Z",
+    "artifactDirectoryName": "serverless/simple-blog-front/dev/1685805366907-2023-06-03T15:16:06.907Z",
     "artifact": ""
   }
 }

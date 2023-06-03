@@ -144,7 +144,7 @@
             },
             {
               "Id": "APIOrigin",
-              "DomainName": "fmme5yjp23.execute-api.ap-northeast-2.amazonaws.com",
+              "DomainName": "ggl6gyygc8.execute-api.ap-northeast-2.amazonaws.com",
               "CustomOriginConfig": {
                 "OriginProtocolPolicy": "https-only",
                 "OriginSSLProtocols": [

@@ -1,5 +1,4 @@
 import { Post, PostListItem } from "./models";
-import {log} from "util";
 
 // 글 목록 조회 API를 요청하는 함수.
 export async function fetchPostListItems(): Promise<PostListItem[]> {

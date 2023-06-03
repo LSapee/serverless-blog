@@ -13,33 +13,33 @@ const vpc = {subnetIds,securityGroupIds};
 const functions = {
   createPost: {
     handler: "handler.createPost",
-    events: [{ http: { path: "/api/post", method: "post" } }],
+    events: [{ httpApi: { path: "/api/post", method: "post" } }],
     vpc,
   },
   readPost: {
     handler: "handler.readPost",
-    events: [{ http: { path: "/api/post/{title}", method: "get" } }],
+    events: [{ httpApi: { path: "/api/post/{title}", method: "get" } }],
   },
   updatePost: {
     handler: "handler.updatePost",
-    events: [{ http: { path: "/api/post/{title}", method: "put" } }],
+    events: [{ httpApi: { path: "/api/post/{title}", method: "put" } }],
     vpc,
   },
   deletePost: {
     handler: "handler.deletePost",
-    events: [{ http: { path: "/api/post/{title}", method: "delete" } }],
+    events: [{ httpApi: { path: "/api/post/{title}", method: "delete" } }],
     vpc,
   },
   listPosts: {
     handler: "handler.listPosts",
-    events: [{ http: { path: "/api/post", method: "get" } }],
+    events: [{ httpApi: { path: "/api/post", method: "get" } }],
   },
   serveStatic:{
     handler:"handler.serveStatic",
     events:[
-      {http:{path:"/",method:"get"}},
-      {http:{path:"/{fileName}",method:"get"}},
-      {http:{path:"/static/{type}/{fileName}",method: "get"}},
+      {httpApi:{path:"/",method:"get"}},
+      {httpApi:{path:"/{fileName}",method:"get"}},
+      {httpApi:{path:"/static/{type}/{fileName}",method: "get"}},
     ]
   }
 };
@@ -88,14 +88,6 @@ const config: AWS = {
         ],
       },
     },
-    apiGateway:{
-      minimumCompressionSize :1024,
-      binaryMediaTypes : ["image/*"]
-    },
-    tracing:{
-      apiGateway:true,
-      lambda:true,
-    },
     layers,
   },
   functions,
@@ -106,13 +98,6 @@ const config: AWS = {
             "[ -d .webpack/serveStatic ] && cp -r ../blog-frontend/build .webpack/serveStatic/pages || true",
       },
     },
-    customDomain: {
-      apiType: "rest",
-      domainName: `${process.env.SUB_DOMAIN}.${process.env.ROOT_DOMAIN}`,
-      certificateName: process.env.ROOT_DOMAIN!,
-      endpointType: "edge",
-      createRoute53Record: true,
-    },
   },
   package: {
     individually: true,
@@ -122,7 +107,6 @@ const config: AWS = {
     "serverless-s3-local",
     "serverless-offline",
     "serverless-plugin-scripts",
-    "serverless-domain-manager",
   ],
   resources: {
     Resources: {

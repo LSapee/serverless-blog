@@ -1,15 +1,15 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import { APIGatewayProxyHandler } from "aws-lambda";
+import { APIGatewayProxyHandlerV2 } from "aws-lambda";
 import { contentType } from "mime-types";
 
 const textTypes = [".css", ".html", ".js", ".json", ".map", ".svg", ".txt"];
 
-export const serveStatic: APIGatewayProxyHandler = async (event) => {
+export const serveStatic: APIGatewayProxyHandlerV2 = async (event) => {
     const requestPath = path.join(
         "pages",
-        event.path !== "/" ? event.path : "index.html"
+        event.rawPath !== "/" ? event.rawPath : "index.html"
     );
     const resourcePath = fs.existsSync(requestPath)
         ? requestPath
