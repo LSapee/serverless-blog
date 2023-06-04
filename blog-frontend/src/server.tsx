@@ -1,7 +1,4 @@
 import {Grant, Post, PostListItem} from "./models";
-import exp from "constants";
-
-
 
 // 글 목록 조회 API를 요청하는 함수.
 export async function fetchPostListItems(): Promise<PostListItem[]> {
@@ -58,12 +55,12 @@ export async function deletePost(title: string): Promise<void> {
         throw new Error(`글을 삭제할 수 없습니다. 제목[${title}]`);
     }
 }
-export async function requestLogin(accessToken:string):Promise<void>{
-    await fetch(`${process.env.REACT_APP_SERVER}/api/login/google?token=${accessToken}`,{method:"POST"});
+export async function requestLogin(credential:string):Promise<void>{
+    await fetch(`${process.env.REACT_APP_SERVER}/api/login/google?token=${credential}`,{method:"POST"});
 }
 export async function requestLogout():Promise<void>{
-    await fetch(`${process.env.REACTAPP_SERVER}/api/logout`,{method:"POST"});
+    await fetch(`${process.env.REACT_APP_SERVER}/api/logout`,{method:"POST"});
 }
 export async function requestGrant() :Promise<Grant>{
-    return fetch(`${process.env.REACT_APP_SERVER}/api/grant`,{method:"POST",}).then((r)=>r.json());
+    return fetch(`${process.env.REACT_APP_SERVER}/api/grant`,{method:"POST"}).then((r)=>r.json());
 }

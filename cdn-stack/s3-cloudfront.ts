@@ -69,7 +69,7 @@ const APIOriginRequestPolicy ={
                     "Access-Control-Request-Method",
                     "Access-Control-Request-Headers",
                     "Referer",
-                    "Accept-Language"
+                    "Accept-Language",
                 ],
             },
             QueryStringsConfig:{

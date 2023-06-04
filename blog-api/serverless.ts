@@ -31,7 +31,7 @@ const functions = {
   },
   createPost: {
     handler: "handler.createPost",
-    events: [{ httpApi: { path: "/api/post", method: "post",authorizers:"auth" } }],
+    events: [{ httpApi: { path: "/api/post", method: "post",authorizer:"auth" } }],
     vpc,
     layers,
   },
@@ -42,13 +42,13 @@ const functions = {
   },
   updatePost: {
     handler: "handler.updatePost",
-    events: [{ httpApi: { path: "/api/post/{title}", method: "put",authorizers:"auth" } }],
+    events: [{ httpApi: { path: "/api/post/{title}", method: "put",authorizer:"auth" } }],
     layers,
     vpc,
   },
   deletePost: {
     handler: "handler.deletePost",
-    events: [{ httpApi: { path: "/api/post/{title}", method: "delete",authorizers:"auth" } }],
+    events: [{ httpApi: { path: "/api/post/{title}", method: "delete",authorizer:"auth" } }],
     layers,
     vpc,
   },
@@ -57,14 +57,6 @@ const functions = {
     events: [{ httpApi: { path: "/api/post", method: "get" } }],
     layers,
   },
-  serveStatic:{
-    handler:"handler.serveStatic",
-    events:[
-      {httpApi:{path:"/",method:"get"}},
-      {httpApi:{path:"/{fileName}",method:"get"}},
-      {httpApi:{path:"/static/{type}/{fileName}",method: "get"}},
-    ]
-  }
 };
 
 const S3Bucket = {

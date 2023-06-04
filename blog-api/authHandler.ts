@@ -3,6 +3,7 @@ import {
     APIGatewayRequestSimpleAuthorizerHandlerV2WithContext,
 } from "aws-lambda";
 import { createSigner, createVerifier } from "fast-jwt";
+const { OAuth2Client } = require('google-auth-library');
 
 import https from "https";
 
@@ -16,6 +17,7 @@ const verifyToken = createVerifier({ key: secretKey });
 
 const cookieName = "login";
 const adminEmail = process.env.ADMIN_EMAIL;
+const clientId = process.env.GOOGLE_CLIENT_ID;
 
 export const loginGoogle: APIGatewayProxyHandlerV2 = async (event) => {
     const { token } = event.queryStringParameters ?? {};
@@ -41,29 +43,13 @@ export const loginGoogle: APIGatewayProxyHandlerV2 = async (event) => {
 async function fetchGoogleUserinfo(
     token: string
 ): Promise<{ email: string; error?: string }> {
-    const response = await new Promise<string>((resolve, reject) =>
-        https
-            .request(
-                {
-                    hostname: "www.googleapis.com",
-                    path: "/oauth2/v3/userinfo",
-                    method: "GET",
-                    headers: {
-                        authorization: `Bearer ${token}`,
-                    },
-                },
-                (response) => {
-                    let data = "";
-                    response
-                        .on("data", (chunk) => (data += chunk))
-                        .on("error", reject)
-                        .on("close", () => resolve(data));
-                }
-            )
-            .on("error", reject)
-            .end()
-    );
-    return JSON.parse(response);
+    const oAuth2Client =  new OAuth2Client();
+    const decodedToken = await oAuth2Client.verifyIdToken({
+        idToken: token,
+        audience: clientId
+    });
+    const payload = decodedToken.getPayload();
+    return payload;
 }
 
 export const logout: APIGatewayProxyHandlerV2 = async (event) => {

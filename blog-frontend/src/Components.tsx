@@ -1,10 +1,10 @@
 import {Post, PostListItem} from "./models";
-import {GoogleLogin,GoogleLogout,GoogleLoginResponse} from "react-google-login";
 import { Link } from "react-router-dom";
 import React from "react";
 import { formatDate } from "./utils";
 import nl2br from "react-nl2br";
 import {requestLogin, requestLogout} from "./server";
+import {GoogleOAuthProvider,GoogleLogin} from "@react-oauth/google";
 
 export const GrantContext = React.createContext({ admin: false });
 // 글 목록을 보여주기 위한 컴포넌트.
@@ -144,26 +144,29 @@ export function LogInOutButton({ logged }: { logged: boolean }) {
     // 로그인 여부에 따라 로그인, 로그아웃 버튼을 보여준다.
     if (!logged) {
         return (
-            <GoogleLogin
-                clientId={googleClientId}
-                // 프로필 정보는 서버에서 획득한 후 허가 정보로 되돌려주기 때문에 여기서는 안 가져온다.
-                fetchBasicProfile={false}
-                // 오프라인 인증은 사용하지 않으므로 반환 값은 반드시 "GoogleLoginResponse"다.
-                onSuccess={(response) => processLogin(response as GoogleLoginResponse)}
-                onFailure={(failure) => alert(failure.error)}
-            />
+            <GoogleOAuthProvider clientId={googleClientId}>
+                <GoogleLogin
+                    // 프로필 정보는 서버에서 획득한 후 허가 정보로 되돌려주기 때문에 여기서는 안 가져온다.
+                    // 오프라인 인증은 사용하지 않으므로 반환 값은 반드시 "GoogleLoginResponse"다.
+                    onSuccess={(response) => processLogin(response)}
+                    onError={()=>{
+                        console.log("Login Failed");
+                    }}
+                />
+            </GoogleOAuthProvider>
         );
     }
 
     // 이미 로그인되어 있다면 로그아웃 버튼을 보여준다.
     return (
-        <GoogleLogout clientId={googleClientId} onLogoutSuccess={processLogout} />
+        <button onClick={processLogout}>로그아웃하기</button>
     );
 }
 
-function processLogin(response: GoogleLoginResponse) {
+function processLogin(response:any) {
+    const {credential} = response;
     // 유효한 인증 토큰을 받았다면 블로그 서버 API에 로그인을 요청한다.
-    return requestLogin(response.accessToken).then(() =>
+    return requestLogin(credential).then(() =>
         // 로그인이 성공하면 페이지를 새로고침해서 허가 정보를 갱신한다.
         window.location.reload()
     );

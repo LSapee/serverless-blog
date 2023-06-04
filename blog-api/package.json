@@ -20,6 +20,7 @@
     "aws-xray-sdk-core": "^3.3.1",
     "fast-equals": "^5.0.1",
     "fast-jwt": "^3.1.0",
+    "google-auth-library": "^8.8.0",
     "mime-types": "^2.1.35",
     "mysql2": "^3.3.1"
   },
