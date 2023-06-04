@@ -9,3 +9,7 @@ export interface PostListItem{
     title:string;   //글 제목
     created: string; //글 작성일
 }
+export interface Grant{
+    email:string|null;
+    admin:boolean;
+}

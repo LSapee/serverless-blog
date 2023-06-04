@@ -1,4 +1,4 @@
-import { Editor, PostList, Viewer } from "./Components";
+import { Editor, PostList, Viewer ,GrantContext} from "./Components";
 import { Post, PostListItem } from "./models";
 import {
     createPost,
@@ -7,7 +7,7 @@ import {
     fetchPostListItems,
     updatePost,
 } from "./server";
-import { useNavigate, useParams } from "react-router-dom";
+import {Link, useNavigate, useParams} from "react-router-dom";
 
 import React from "react";
 
@@ -118,4 +118,17 @@ export function PostEditPage() {
             }
         />
     );
+}
+
+export function AdminPage({children}:{children:React.ReactNode}){
+    const {admin} = React.useContext(GrantContext);
+    if(!admin){
+        return (
+            <div>
+                <p>접근할 수 없습니다.</p>
+                <Link to="/">돌아가기</Link>
+            </div>
+        );
+    }
+    return <>{children}</>;
 }
