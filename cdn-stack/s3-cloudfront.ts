@@ -52,11 +52,39 @@ const APIOrigin = {
     },
 };
 
+const APIOriginRequestPolicy ={
+    Type: "AWS::CloudFront::OriginRequestPolicy",
+    Properties:{
+        OriginRequestPolicyConfig:{
+            Name:"AllViewerExceptHostHeader",
+            Comment:"Host 헤더를 제외",
+            CookiesConfig:{
+                CookieBehavior:"all",
+            },
+            HeadersConfig:{
+                HeaderBehavior:"whitelist",
+                Headers:[
+                    "Accept-Charset",
+                    "Origin",
+                    "Access-Control-Request-Method",
+                    "Access-Control-Request-Headers",
+                    "Referer",
+                    "Accept-Language"
+                ],
+            },
+            QueryStringsConfig:{
+                QueryStringBehavior:"all",
+            },
+        },
+    },
+};
+
 const DefaultCacheBehavior ={
     TargetOriginId:"S3Origin",
     ViewerProtocolPolicy:"redirect-to-https",
     Compress:true,
     CachePolicyId:"658327ea-f89d-4fab-a63d-7e88639e58f6",
+
 };
 
 const APIOriginCacheBehavior = {
@@ -65,6 +93,7 @@ const APIOriginCacheBehavior = {
     ViewerProtocolPolicy: "https-only",
     AllowedMethods: ["GET", "HEAD", "OPTIONS", "PUT", "PATCH", "POST", "DELETE"],
     CachePolicyId: "4135ea2d-6df8-44a3-9df3-4b5a84be39ad",
+    OriginRequestPolicyId:{Ref:"APIOriginRequestPolicy"},
 };
 
 const Domain = `${process.env.SUB_DOMAIN}.${process.env.ROOT_DOMAIN}`;
@@ -119,8 +148,9 @@ const resources = {
         OAI,
         BlogStaticFileBucket,
         BlogStaticFileBucketOAIPolicy,
+        APIOriginRequestPolicy,
         BlogStaticFileCdn,
-        BlogStaticFileCdnDns
+        BlogStaticFileCdnDns,
     }
 };
 

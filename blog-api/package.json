@@ -19,6 +19,7 @@
     "@redis/client": "^1.5.7",
     "aws-xray-sdk-core": "^3.3.1",
     "fast-equals": "^5.0.1",
+    "fast-jwt": "^3.1.0",
     "mime-types": "^2.1.35",
     "mysql2": "^3.3.1"
   },
@@ -30,6 +31,7 @@
     "@types/node": "^14.18.46",
     "better-sqlite3": "^8.4.0",
     "esbuild": "^0.14.11",
+    "fork-ts-checker-webpack-plugin": "^8.0.0",
     "json-schema-to-ts": "^1.5.0",
     "s3rver": "^3.7.1",
     "serverless": "^3.0.0",

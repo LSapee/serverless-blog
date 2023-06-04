@@ -121,6 +121,32 @@
               }
             }
           },
+          "APIOriginRequestPolicy": {
+            "Type": "AWS::CloudFront::OriginRequestPolicy",
+            "Properties": {
+              "OriginRequestPolicyConfig": {
+                "Name": "AllViewerExceptHostHeader",
+                "Comment": "Host 헤더를 제외",
+                "CookiesConfig": {
+                  "CookieBehavior": "all"
+                },
+                "HeadersConfig": {
+                  "HeaderBehavior": "whitelist",
+                  "Headers": [
+                    "Accept-Charset",
+                    "Origin",
+                    "Access-Control-Request-Method",
+                    "Access-Control-Request-Headers",
+                    "Referer",
+                    "Accept-Language"
+                  ]
+                },
+                "QueryStringsConfig": {
+                  "QueryStringBehavior": "all"
+                }
+              }
+            }
+          },
           "BlogStaticFileCdn": {
             "Type": "AWS::CloudFront::Distribution",
             "Properties": {
@@ -184,7 +210,10 @@
                       "POST",
                       "DELETE"
                     ],
-                    "CachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+                    "CachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad",
+                    "OriginRequestPolicyId": {
+                      "Ref": "APIOriginRequestPolicy"
+                    }
                   }
                 ],
                 "Aliases": [
@@ -377,6 +406,32 @@
             }
           }
         },
+        "APIOriginRequestPolicy": {
+          "Type": "AWS::CloudFront::OriginRequestPolicy",
+          "Properties": {
+            "OriginRequestPolicyConfig": {
+              "Name": "AllViewerExceptHostHeader",
+              "Comment": "Host 헤더를 제외",
+              "CookiesConfig": {
+                "CookieBehavior": "all"
+              },
+              "HeadersConfig": {
+                "HeaderBehavior": "whitelist",
+                "Headers": [
+                  "Accept-Charset",
+                  "Origin",
+                  "Access-Control-Request-Method",
+                  "Access-Control-Request-Headers",
+                  "Referer",
+                  "Accept-Language"
+                ]
+              },
+              "QueryStringsConfig": {
+                "QueryStringBehavior": "all"
+              }
+            }
+          }
+        },
         "BlogStaticFileCdn": {
           "Type": "AWS::CloudFront::Distribution",
           "Properties": {
@@ -440,7 +495,10 @@
                     "POST",
                     "DELETE"
                   ],
-                  "CachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+                  "CachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad",
+                  "OriginRequestPolicyId": {
+                    "Ref": "APIOriginRequestPolicy"
+                  }
                 }
               ],
               "Aliases": [
@@ -496,7 +554,7 @@
     "isDashboardMonitoringPreconfigured": false
   },
   "package": {
-    "artifactDirectoryName": "serverless/simple-blog-front/dev/1685805366907-2023-06-03T15:16:06.907Z",
+    "artifactDirectoryName": "serverless/simple-blog-front/dev/1685877263410-2023-06-04T11:14:23.410Z",
     "artifact": ""
   }
 }

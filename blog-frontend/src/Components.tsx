@@ -1,10 +1,12 @@
-import { Post, PostListItem } from "./models";
-
+import {Post, PostListItem} from "./models";
+import {GoogleLogin,GoogleLogout,GoogleLoginResponse} from "react-google-login";
 import { Link } from "react-router-dom";
 import React from "react";
 import { formatDate } from "./utils";
 import nl2br from "react-nl2br";
+import {requestLogin, requestLogout} from "./server";
 
+export const GrantContext = React.createContext({ admin: false });
 // 글 목록을 보여주기 위한 컴포넌트.
 export function PostList({ postItems }: { postItems: PostListItem[] }) {
     // 상태를 갖지 않고 전달 받은 값을 순수히 DOM으로 표현하기만 한다.
@@ -20,7 +22,9 @@ export function PostList({ postItems }: { postItems: PostListItem[] }) {
                     </li>
                 ))}
             </ul>
-            <Link to="/_new">새 글</Link>
+            <AdminComponent>
+                <Link to="/_new">새 글</Link>
+            </AdminComponent>
         </div>
     );
 }
@@ -62,7 +66,9 @@ export function Viewer({post}:{ post: Post }) {
             <Link to="/">목록</Link>
             {/* Link 사이에 띄어쓰기를 넣어 약간 떨어지게 만들어준다. */}
             &nbsp;&nbsp;
-            <Link to={`/${post.title}/edit`}>수정</Link>
+            <AdminComponent>
+                <Link to={`/${post.title}/edit`}>수정</Link>
+            </AdminComponent>
         </div>
     );
 }
@@ -118,4 +124,52 @@ export function Editor({
             {post && <button onClick={onDelete}>삭제</button>}
         </div>
     );
+}
+
+// 운영자 권한을 획득했을 때만 children을 노출하는 컴포넌트.
+export function AdminComponent({ children }: { children: React.ReactNode }) {
+    // 허가 정보에서 운영자 여부를 조회한다.
+    const { admin } = React.useContext(GrantContext);
+
+    // 운영자일 때만 "children"을 반환한다. 이 때 children은 올바른 JSX가 아닐 수 있으므로
+    // React.Fragment로 감싸서 JSX로 만들어준다.
+    return admin ? <>{children}</> : <></>;
+}
+
+// 환경 변수로 지정한 Google Client ID를 구글 인증을 위한 정보로 주입한다.
+const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID!;
+
+// 로그인, 로그아웃을 처리하기 위한 버튼 컴포넌트.
+export function LogInOutButton({ logged }: { logged: boolean }) {
+    // 로그인 여부에 따라 로그인, 로그아웃 버튼을 보여준다.
+    if (!logged) {
+        return (
+            <GoogleLogin
+                clientId={googleClientId}
+                // 프로필 정보는 서버에서 획득한 후 허가 정보로 되돌려주기 때문에 여기서는 안 가져온다.
+                fetchBasicProfile={false}
+                // 오프라인 인증은 사용하지 않으므로 반환 값은 반드시 "GoogleLoginResponse"다.
+                onSuccess={(response) => processLogin(response as GoogleLoginResponse)}
+                onFailure={(failure) => alert(failure.error)}
+            />
+        );
+    }
+
+    // 이미 로그인되어 있다면 로그아웃 버튼을 보여준다.
+    return (
+        <GoogleLogout clientId={googleClientId} onLogoutSuccess={processLogout} />
+    );
+}
+
+function processLogin(response: GoogleLoginResponse) {
+    // 유효한 인증 토큰을 받았다면 블로그 서버 API에 로그인을 요청한다.
+    return requestLogin(response.accessToken).then(() =>
+        // 로그인이 성공하면 페이지를 새로고침해서 허가 정보를 갱신한다.
+        window.location.reload()
+    );
+}
+
+function processLogout() {
+    // 로그아웃이 성공하면 페이지를 새로고침해서 허가 정보를 갱신한다.
+    return requestLogout().then(() => window.location.reload());
 }
