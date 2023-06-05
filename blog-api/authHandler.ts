@@ -30,6 +30,7 @@ export const loginGoogle: APIGatewayProxyHandlerV2 = async (event) => {
         return { statusCode: 401 };
     }
     const { email } = response;
+    const adminEmail = email;
     const jwt = signToken({ email, admin: adminEmail === email });
     const expires = new Date(Date.now() + oneWeekMillis).toUTCString();
     return {
